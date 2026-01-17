@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>占星运势助手</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; background: #f9f9f9; }
+        input, button { padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🌟 个人星盘推算</h1>
+    
+    <div>
+        <label>出生日期时间：</label><br>
+        <input type="datetime-local" id="birthTime" value="1995-01-01T12:00"><br>
+        <label>出生城市经度（如北京 116.4）：</label><br>
+        <input type="number" id="lng" value="116.4"><br>
+        <button onclick="calculateAstro()">立即推算运势</button>
+    </div>
+
+    <div id="result" class="card" style="display:none;">
+        <h3>你的核心能量：</h3>
+        <p id="sunSign"></p>
+        <p id="moonSign"></p>
+        <p id="ascSign"></p>
+        <hr>
+        <h4>✨ 今日运势预测：</h4>
+        <p id="dailyFortune"></p>
+    </div>
+
+    <script>
+        function getSignName(degrees) {
+            const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+            return signs[Math.floor(degrees / 30)] + "座";
+        }
+
+        function calculateAstro() {
+            // 显示结果面板
+            document.getElementById('result').style.display = 'block';
+            
+            // 获取用户输入
+            const timeValue = document.getElementById('birthTime').value;
+            const lng = parseFloat(document.getElementById('lng').value);
+
+            // --- 这里是核心逻辑模拟（后续我们会接入真实计算库） ---
+            // 太阳位置模拟计算
+            const sunPos = (new Date(timeValue).getDate() * 12) % 360; 
+            // 上升位置模拟（随经度变化）
+            const ascPos = (sunPos + (lng / 15) * 30) % 360;
+            // 月亮位置模拟（随分钟变化）
+            const moonPos = (new Date(timeValue).getMinutes() * 6) % 360;
+
+            // 渲染到页面
+            document.getElementById('sunSign').innerHTML = `☀️ <b>太阳：</b> ${getSignName(sunPos)}（核心人格）`;
+            document.getElementById('moonSign').innerHTML = `🌙 <b>月亮：</b> ${getSignName(moonPos)}（内在情绪）`;
+            document.getElementById('ascSign').innerHTML = `⬆️ <b>上升：</b> ${getSignName(ascPos)}（外在人格）`;
+            
+            document.getElementById('dailyFortune').innerHTML = `
+                今日你的 ${getSignName(sunPos)} 能量受到木星加持，适合处理 GitHub 报错！
+                重点提醒：明晚 8 点后运气更佳。
+            `;
+        }
+    </script>
+</body>
+</html>

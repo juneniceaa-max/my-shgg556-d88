@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>本周周运 | ASTRO LAB</title>
+    <style>
+        :root {
+            --bg: #0c0d12;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --weekly-accent: #fab1a0;
+            --high-energy: #55efc4;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: -apple-system, "SF Pro Text", sans-serif;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        .back-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 26px;
+            background: linear-gradient(135deg, #fab1a0, #ff7675);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        /* 周运概览卡片 */
+        .info-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            border-left: 4px solid var(--weekly-accent);
+            margin-bottom: 25px;
+        }
+
+        .date-range {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--weekly-accent);
+            margin-bottom: 8px;
+        }
+
+        #weekInsight {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        /* 每日列表样式 */
+        .list-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-item {
+            background: rgba(255,255,255,0.02);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .day-name { font-weight: 500; font-size: 15px; }
+
+        /* 能量条样式 */
+        .energy-box { text-align: right; width: 120px; }
+        .energy-num { font-size: 14px; font-weight: bold; margin-bottom: 5px; display: block; }
+        .energy-bar {
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .energy-fill {
+            height: 100%;
+            transition: width 1s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回实验室</a>
+        <h1 id="weekTitle">自然周能量推演</h1>
+
+        <div class="info-card">
+            <div class="date-range" id="currentDateRange">正在计算...</div>
+            <div id="weekInsight">同步宇宙波动中...</div>
+        </div>
+
+        <div class="list-title">📊 每日能量指数</div>
+        <div id="dailyList">
+            </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // 1. 获取自然周日期 (周一至周日)
+            const now = new Date();
+            const dayOfWeek = now.getDay() || 7; // 将周日从0改为7
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - dayOfWeek + 1);
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+
+            document.getElementById('currentDateRange').innerText = 
+                `${monday.getMonth()+1}月${monday.getDate()}日 - ${sunday.getMonth()+1}月${sunday.getDate()}日`;
+
+            // 2. 获取用户星座数据
+            const userAstro = JSON.parse(localStorage.getItem('userAstro')) || { sun: "天蝎", asc: "天秤" };
+            const { sun, asc } = userAstro;
+
+            // 3. 星座周运基调库
+            const weekInsights = [
+                "本周星象显示，由于守护星位置变动，你将面临心态的转折。建议在周中保持耐心。",
+                "能量场呈现扩张态势，你的直觉力处于高位，适合进行重要的决策或灵感创作。",
+                "社交频繁的一周。可能会有旧友重新出现，或者在职场沟通中获得关键信息。",
+                "由于土星的影响，本周更适合稳扎稳打。处理繁杂的基础事务将为你带来长远的好处。"
+            ];
+            // 根据本月第几周来固定显示某一条，确保用户这周内点开文字是一样的
+            const weekIndex = Math.floor(now.getDate() / 7) % weekInsights.length;
+            document.getElementById('weekInsight').innerText = weekInsights[weekIndex];
+
+            // 4. 星座偏移算法库
+            const astroBonus = {
+                "天蝎": [6, -2, 3, 5, 0, 8, 4],
+                "天秤": [1, 5, 2, -3, 6, 4, 7],
+                "狮子": [8, 4, -1, 3, 2, 5, 6],
+                "处女": [2, 7, 5, 4, -2, 1, 3],
+                "双子": [4, 2, 8, 6, 3, -1, 5]
+            };
+
+            // 5. 生成每日数据
+            const dayNames = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+            let html = '';
+            
+            dayNames.forEach((d, i) => {
+                // 基础值固定为 65-80 之间，加上星座偏移
+                let base = 68 + (i * 2); // 让曲线有一点基础波动
+                let offset = (astroBonus[sun] ? astroBonus[sun][i] : 2) + 
+                             (astroBonus[asc] ? astroBonus[asc][i] : 1);
+                
+                let finalEnergy = Math.min(100, base + offset);
+                const isHigh = finalEnergy > 85;
+                const color = isHigh ? '#55efc4' : '#fab1a0';
+
+                html += `
+                    <div class="day-item">
+                        <span class="day-name">${d}</span>
+                        <div class="energy-box">
+                            <span class="energy-num" style="color:${color}">${finalEnergy}%</span>
+                            <div class="energy-bar">
+                                <div class="energy-fill" style="width:${finalEnergy}%; background:${color}"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('dailyList').innerHTML = html;
+        };
+    </script>
+</body>
+</html>

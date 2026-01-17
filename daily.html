@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>运势推演 | 维度分析</title>
+    <style>
+        body { background: #090a0f; color: white; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 450px; }
+        .nav-back { color: #888; text-decoration: none; font-size: 14px; margin-bottom: 20px; display: block; }
+        .tab-group { display: flex; background: rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 20px; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; transition: 0.3s; }
+        .tab.active { background: #7d5fff; border-radius: 12px; }
+        .dimension-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border-left: 4px solid #7d5fff; margin-bottom: 15px; }
+        .dim-title { font-size: 14px; color: #a29bfe; margin-bottom: 8px; }
+        .summary-box { background: linear-gradient(135deg, rgba(125,95,255,0.2), rgba(85,239,196,0.1)); padding: 20px; border-radius: 20px; line-height: 1.7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="nav-back">← 返回星盘输入</a>
+        <h1>实时运势推演</h1>
+        
+        <div class="tab-group">
+            <div id="todayBtn" class="tab active" onclick="switchDay('today')">今日运势</div>
+            <div id="tomorrowBtn" class="tab" onclick="switchDay('tomorrow')">明日运势</div>
+        </div>
+
+        <div id="reportArea">
+            <div class="dimension-card">
+                <div class="dim-title">☀️ 太阳维度 (核心行动力)</div>
+                <div id="sunReport">载入中...</div>
+            </div>
+            <div class="dimension-card" style="border-left-color: #55efc4;">
+                <div class="dim-title">🌙 月亮维度 (内在情绪流)</div>
+                <div id="moonReport">载入中...</div>
+            </div>
+            <div class="dimension-card" style="border-left-color: #74b9ff;">
+                <div class="dim-title">⬆️ 上升维度 (环境机遇项)</div>
+                <div id="ascReport">载入中...</div>
+            </div>
+            <div class="summary-box">
+                <b style="color:#55efc4">📜 综合推演总结：</b><br>
+                <span id="summaryText">载入中...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取首页存入的数据
+        const userAstro = JSON.parse(localStorage.getItem('userAstro'));
+        
+        if (!userAstro) {
+            document.body.innerHTML = "<h2>请先返回首页输入出生信息</h2><a href='index.html'>点击返回</a>";
+        }
+
+        function switchDay(day) {
+            document.getElementById('todayBtn').classList.toggle('active', day === 'today');
+            document.getElementById('tomorrowBtn').classList.toggle('active', day === 'tomorrow');
+            generateReport(day);
+        }
+
+        function generateReport(day) {
+            const isT = day === 'tomorrow';
+            
+            // 模拟逻辑：基于星座和日期生成严谨文本
+            const sunTxt = `${userAstro.sun}座在${day === 'today' ? '今日' : '明日'}的能量场中，太阳处于主导地位，你的${isT ? '长远计划将获得启发' : '执行力正处于巅峰'}。`;
+            const moonTxt = `受${userAstro.moon}座影响，你的情绪${isT ? '会趋于平稳' : '较为敏感'}，建议${isT ? '多与人交流' : '独处思考'}。`;
+            const ascTxt = `上升${userAstro.asc}座为你带来了${isT ? '社交圈的变动' : '职场的新机遇'}。`;
+            
+            const summary = `综合来看，${userAstro.sun}座的你今天需要利用上升${userAstro.asc}座的社交优势，去平复月亮${userAstro.moon}座可能带来的小情绪。`;
+
+            document.getElementById('sunReport').innerText = sunTxt;
+            document.getElementById('moonReport').innerText = moonTxt;
+            document.getElementById('ascReport').innerText = ascTxt;
+            document.getElementById('summaryText').innerText = summary;
+        }
+
+        // 初始化加载
+        generateReport('today');
+    </script>
+</body>
+</html>

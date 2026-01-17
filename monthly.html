@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>月度深度推演 | ASTRO LAB</title>
+    <style>
+        :root {
+            --bg: #0c0d12;
+            --accent: #81ecec;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-dim: #888;
+        }
+
+        body { margin: 0; background: var(--bg); color: white; font-family: -apple-system, system-ui, sans-serif; padding-bottom: 60px; overflow-x: hidden; }
+        .container { width: 90%; max-width: 420px; margin: 0 auto; padding-top: 20px; }
+        .back-link { color: var(--text-dim); text-decoration: none; font-size: 14px; display: block; margin-bottom: 10px; }
+
+        /* 月份头部 */
+        .month-header { text-align: center; margin: 20px 0; }
+        .month-circle {
+            width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: bold; margin: 0 auto 10px;
+            box-shadow: 0 0 15px rgba(129, 236, 236, 0.2); background: rgba(129, 236, 236, 0.05);
+        }
+
+        .glass-card {
+            background: var(--card-bg); border-radius: 20px; padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 15px;
+        }
+
+        .theme-title { font-size: 17px; color: var(--accent); font-weight: bold; margin-bottom: 8px; display: block; }
+        .theme-desc { font-size: 13px; line-height: 1.6; color: #ccc; }
+
+        .lucky-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .lucky-box {
+            background: rgba(255,255,255,0.03); border-radius: 15px; padding: 12px 5px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .lucky-label { font-size: 10px; color: var(--text-dim); display: block; margin-bottom: 6px; }
+        .lucky-val { font-size: 12px; font-weight: bold; color: #fff; }
+
+        /* --- 动画优化：能量图 --- */
+        .chart-label { font-size: 12px; color: var(--text-dim); margin: 20px 0 10px 5px; display: block; }
+        .energy-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 60px; padding: 0 10px; }
+        
+        .energy-pillar { 
+            width: 12px; 
+            background: linear-gradient(to top, var(--accent), #55efc4); 
+            border-radius: 3px 3px 0 0; 
+            /* 初始高度为0，通过动画升起 */
+            height: 0;
+            animation: growUp 1.2s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+        }
+
+        @keyframes growUp {
+            from { height: 0; }
+            to { height: var(--target-h); }
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, rgba(129, 236, 236, 0.1), rgba(162, 155, 254, 0.1));
+            border-radius: 18px; padding: 15px; border-left: 3px solid var(--accent); margin-top: 10px;
+        }
+        .insight-title { font-size: 13px; font-weight: bold; color: var(--accent); margin-bottom: 6px; }
+        .insight-text { font-size: 13px; color: #aaa; line-height: 1.5; font-style: italic; }
+
+        /* --- 样式优化：格言区 --- */
+        .motto-container { 
+            margin-top: 50px; 
+            text-align: center; 
+            padding: 30px 20px;
+            background: radial-gradient(circle at center, rgba(129, 236, 236, 0.05) 0%, transparent 70%);
+            border-radius: 30px;
+        }
+        .motto-line { width: 30px; height: 1.5px; background: var(--accent); margin: 0 auto 20px; opacity: 0.4; }
+        #mbtiMotto { 
+            font-size: 16px; 
+            color: #fff; 
+            line-height: 1.8; 
+            letter-spacing: 1px; 
+            font-weight: 300;
+        }
+        #mbtiMotto span { color: var(--accent); margin: 0 5px; font-family: serif; font-size: 20px; }
+        .motto-footer { font-size: 10px; color: #444; letter-spacing: 4px; text-transform: uppercase; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回实验室</a>
+        
+        <div class="month-header">
+            <div class="month-circle" id="monthCircle">--</div>
+            <div style="font-size: 18px; letter-spacing: 2px; font-weight: bold;">月度深度推演</div>
+        </div>
+
+        <div class="glass-card">
+            <span class="theme-title" id="monthTheme">正在同步月相...</span>
+            <div class="theme-desc" id="monthContent">...</div>
+        </div>
+
+        <div class="lucky-row">
+            <div class="lucky-box"><span class="lucky-label">🌈 幸运色</span><span class="lucky-val" id="luckyColor">--</span></div>
+            <div class="lucky-box"><span class="lucky-label">🐾 幸运动物</span><span class="lucky-val" id="luckyAnimal">--</span></div>
+            <div class="lucky-box"><span class="lucky-label">🔢 幸运数字</span><span class="lucky-val" id="luckyNum">--</span></div>
+        </div>
+
+        <span class="chart-label">📊 本月能量流向 (基于性格模型)</span>
+        <div class="glass-card">
+            <div class="energy-chart" id="energyChart"></div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #444; margin-top: 12px; padding: 0 5px;">
+                <span>月初</span><span>月中</span><span>月末</span>
+            </div>
+        </div>
+
+        <div class="insight-box">
+            <div class="insight-title">✨ 灵感指引</div>
+            <div class="insight-text" id="randomInsight">...</div>
+        </div>
+
+        <div class="motto-container">
+            <div class="motto-line"></div>
+            <div id="mbtiMotto"></div>
+            <div class="motto-footer">Astro Lab · 2026</div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const storageData = JSON.parse(localStorage.getItem('userAstro')) || {};
+            const mbti = storageData.mbti || "INTJ";
+
+            document.getElementById('monthCircle').innerText = month + "月";
+
+            // 基础信息
+            const themes = ["潜龙勿用", "利见大人", "春暖花开", "木秀于林", "烈日当空", "颗粒归仓", "顺风顺水", "秋高气爽", "宁静致远", "拨云见日", "瑞雪丰年", "岁末圆满"];
+            const colors = [{n:"冰晶蓝",h:"#a2e4f3"}, {n:"樱花粉",h:"#ffb7c5"}, {n:"薄荷绿",h:"#55efc4"}, {n:"琥珀黄",h:"#ffeaa7"}];
+            const animals = ["北极熊", "梅花鹿", "灵猫", "海豚", "独角兽", "白鹤"];
+
+            document.getElementById('monthTheme').innerText = "本月主题：" + themes[month - 1];
+            document.getElementById('monthContent').innerText = `受${month}月星象变动影响，你的能量场正处于平稳过渡期，适合进行内在探索。`;
+            
+            const colorObj = colors[month % colors.length];
+            document.getElementById('luckyColor').innerHTML = `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${colorObj.h};margin-right:4px;"></span>${colorObj.n}`;
+            document.getElementById('luckyAnimal').innerText = animals[month % animals.length];
+            document.getElementById('luckyNum').innerText = (month * 7) % 10 + 1;
+
+            const insights = ["当你停止向外寻求认可，真正的力量就会从内心升起。", "保持优雅的节奏，不要被外界的喧嚣打乱心跳。", "宇宙正在为你清理不再需要的旧能量。"];
+            document.getElementById('randomInsight').innerText = insights[month % insights.length];
+
+            // --- 逻辑优化：带延迟动画的能量图 ---
+            const isExtrovert = mbti.startsWith('E');
+            const volatility = isExtrovert ? 45 : 18; 
+            const baseHeight = isExtrovert ? 12 : 32;
+            let chartHtml = '';
+            for(let i=0; i<15; i++) {
+                const h = baseHeight + (Math.random() * volatility);
+                // 使用 CSS 变量控制目标高度，并增加动画延迟
+                chartHtml += `<div class="energy-pillar" style="--target-h:${h}px; opacity:${0.3 + (h/100)}; animation-delay: ${i * 0.05}s"></div>`;
+            }
+            document.getElementById('energyChart').innerHTML = chartHtml;
+
+            // --- 逻辑优化：带引号修饰的格言 ---
+            const mottoPool = {
+                "INTJ": "在深邃的孤独中，重构属于你的秩序",
+                "ENFP": "跨越平庸的边界，拥抱灵魂的万象",
+                "INFJ": "于无声处听惊雷，于平凡中见众生",
+                "ISTJ": "秩序是星辰的轨迹，指引抵达彼岸",
+                "DEFAULT": "顺应时间的纹理，万物皆有其时"
+            };
+            const rawMotto = mottoPool[mbti] || mottoPool["DEFAULT"];
+            document.getElementById('mbtiMotto').innerHTML = `<span>「</span>${rawMotto}<span>」</span>`;
+        };
+    </script>
+</body>
+</html>

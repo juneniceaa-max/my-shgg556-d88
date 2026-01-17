@@ -3,112 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>专业精度星盘 V3.0</title>
+    <title>ASTRO LAB | 星启实验室</title>
     <style>
-        :root { --primary: #a29bfe; --gold: #ffeaa7; --bg: #0a0a12; }
-        body { font-family: system-ui, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; padding: 20px; }
-        .app-container { width: 100%; max-width: 500px; }
+        :root {
+            --accent: #7d5fff;
+            --text-glow: rgba(85, 239, 196, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            margin: 0; min-height: 100vh;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            color: white; font-family: 'PingFang SC', system-ui, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            overflow-x: hidden; position: relative;
+        }
+
+        /* 🌠 流星背景层 */
+        .star-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+        .shooting-star {
+            position: absolute; width: 4px; height: 4px; background: #fff;
+            border-radius: 50%; animation: animate 3s linear infinite;
+        }
+        .shooting-star::before {
+            content: ''; position: absolute; top: 50%; transform: translateY(-50%);
+            width: 300px; height: 1px; background: linear-gradient(90deg, #fff, transparent);
+        }
+        .shooting-star:nth-child(1) { top: 0; right: 0; animation-duration: 1.2s; }
+        .shooting-star:nth-child(2) { top: 10%; right: 200px; animation-delay: 0.5s; animation-duration: 2.5s; }
+        .shooting-star:nth-child(3) { top: 20%; right: 400px; animation-delay: 1s; animation-duration: 1.8s; }
+
+        @keyframes animate {
+            0% { transform: rotate(315deg) translateX(0); opacity: 1; }
+            100% { transform: rotate(315deg) translateX(-1000px); opacity: 0; }
+        }
+
+        .container { width: 90%; max-width: 420px; z-index: 10; padding: 20px 0; }
+
         .glass-card { 
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
-            backdrop-filter: blur(20px); border-radius: 28px; padding: 30px; 
-            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
+            background: var(--card-bg); backdrop-filter: blur(15px);
+            border-radius: 28px; padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
         }
-        h1 { text-align: center; font-weight: 300; letter-spacing: 4px; color: var(--gold); }
-        label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        input, select { 
-            width: 100%; padding: 15px; margin: 8px 0 25px; 
-            background: rgba(0,0,0,0.4); border: 1px solid #2d3436; 
-            border-radius: 14px; color: white; font-size: 16px;
-        }
-        button { 
-            width: 100%; padding: 18px; border-radius: 14px; border: none;
-            background: #6c5ce7; color: white; font-weight: 600; cursor: pointer; transition: 0.4s;
-        }
-        button:hover { background: #a29bfe; transform: translateY(-3px); }
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .res-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-top: 2px solid var(--primary); }
-        .res-label { font-size: 11px; color: #aaa; margin-bottom: 5px; }
-        .res-val { font-size: 18px; color: var(--gold); font-weight: bold; }
-        .dynamic-report { 
-            margin-top: 25px; padding: 20px; background: rgba(162, 155, 254, 0.05); 
-            border-radius: 20px; font-size: 14px; line-height: 1.8; color: #eee;
-        }
+
+        h1 { text-align: center; letter-spacing: 6px; background: linear-gradient(to right, #a29bfe, #74b9ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        label { display: block; font-size: 13px; color: #888; margin: 15px 0 5px 5px; }
+        input, select { width: 100%; padding: 16px; border-radius: 14px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: white; box-sizing: border-box; outline: none; margin-bottom: 10px; }
+        
+        button.main-btn { width: 100%; padding: 18px; border-radius: 14px; border: none; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button.main-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(108, 92, 231, 0.4); }
+
+        .result-item { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .val-text { color: #55efc4; font-weight: bold; text-shadow: 0 0 10px var(--text-glow); }
+
+        /* 🚩 导航按钮样式 */
+        .nav-grid { display: none; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+        .nav-btn { padding: 15px; border-radius: 12px; border: none; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <h1>STEL-ASTRO</h1>
+
+    <div class="star-container">
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+    </div>
+
+    <div class="container">
+        <h1>ASTRO LAB</h1>
         
-        <div class="glass-card">
-            <label>📅 Birth Date & Time</label>
+        <div id="inputCard" class="glass-card">
+            <label>🕰️ 出生准确时刻</label>
             <input type="datetime-local" id="birthTime" value="1995-10-24T12:00">
             
-            <label>📍 Location (Longitude)</label>
-            <select id="citySelect">
-                <option value="116.4">北京 (Central China)</option>
-                <option value="121.4">上海 (East China)</option>
-                <option value="113.2">广州 (South China)</option>
-                <option value="104.0">成都 (West China)</option>
-                <option value="120.1">杭州 (Zhejiang)</option>
+            <label>📍 地理方位</label>
+            <select id="location">
+                <option value="116.4">北京</option>
+                <option value="121.4">上海</option>
+                <option value="113.2">广州</option>
+                <option value="104.0">成都</option>
             </select>
             
-            <button onclick="calculateHighPrecision()">推演星命轨迹</button>
+            <button class="main-btn" onclick="runCalculation()">开启灵魂指引</button>
         </div>
 
-        <div id="resultArea" class="glass-card" style="display:none;">
-            <div class="result-grid">
-                <div class="res-box"><div class="res-label">太阳 SUN</div><div class="res-val" id="sun"></div></div>
-                <div class="res-box"><div class="res-label">月亮 MOON</div><div class="res-val" id="moon"></div></div>
-                <div class="res-box"><div class="res-label">上升 ASC</div><div class="res-val" id="asc"></div></div>
-                <div class="res-box"><div class="res-label">金星 VENUS</div><div class="res-val" id="venus"></div></div>
-            </div>
-            
-            <div class="dynamic-report">
-                <div id="reportHeader" style="color:var(--gold); margin-bottom:10px; font-weight:bold;"></div>
-                <div id="reportContent"></div>
-            </div>
+        <div id="resultArea" class="glass-card" style="display: none;">
+            <div class="result-item"><span>☀️ 太阳星座</span><span class="val-text" id="sun"></span></div>
+            <div class="result-item"><span>🌙 月亮星座</span><span class="val-text" id="moon"></span></div>
+            <div class="result-item"><span>⬆️ 上升星座</span><span class="val-text" id="asc"></span></div>
+            <div id="report" style="margin-top:20px; font-size:14px; color:#ccc; line-height:1.6;"></div>
+        </div>
+
+        <div id="navGroup" class="nav-grid">
+            <button class="nav-btn" style="background:linear-gradient(135deg, #ff7675, #fab1a0);" onclick="navigateTo('daily.html')">📅 今日/明日运势</button>
+            <button class="nav-btn" onclick="navigateTo('weekly.html')" style="background: #fab1a0;">📅 本周运势指引</button>
+            <button class="nav-btn" onclick="navigateTo('monthly.html')" style="background: #81ecec;">🌙 本月深度能量</button>
+            <button class="nav-btn" style="background:linear-gradient(135deg, #74b9ff, #81ecec);" onclick="navigateTo('yearly.html')">📈 2026 年度运势</button>
+            <button class="nav-btn" style="background:linear-gradient(135deg, #a29bfe, #6c5ce7);" onclick="navigateTo('matrix.html')">🔮 命理跨界联动</button>
+        </div>
+</button>
         </div>
     </div>
 
     <script>
-        function calculateHighPrecision() {
-            const time = new Date(document.getElementById('birthTime').value);
-            const lng = parseFloat(document.getElementById('citySelect').value);
-            const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+       // 🚩 新增：页面加载时自动检查
+window.onload = function() {
+    if (localStorage.getItem('userAstro')) {
+        showResultDirectly();
+    }
+};
 
-            // 1. 基准时间计算 (自2000年1月1日的总天数)
-            const epoch = new Date("2000-01-01T12:00:00Z");
-            const d = (time - epoch) / 86400000;
+function runCalculation() {
+    const timeVal = document.getElementById('birthTime').value;
+    const lng = parseFloat(document.getElementById('location').value);
+    if (!timeVal) return;
 
-            // 2. 高精度太阳计算 (太阳黄经 L)
-            const L = (280.460 + 0.9856474 * d) % 360;
-            const sunIdx = Math.floor(L / 30);
+    const time = new Date(timeVal);
+    const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
 
-            // 3. 高精度月亮计算 (周期 27.321)
-            const M = (125.04 - 1934.136 * (d/36525)) % 360; // 修正月亮交点
-            const moonL = (218.316 + 13.176396 * d) % 360;
-            const moonIdx = Math.floor((moonL < 0 ? moonL + 360 : moonL) / 30);
+    const dayOfYear = (time - new Date(time.getFullYear(), 0, 0)) / 86400000;
+    const hour = time.getHours() + time.getMinutes() / 60;
+    const sunIdx = Math.floor(((dayOfYear + 284) % 365 / 365) * 12);
+    const moonIdx = Math.floor((dayOfYear * 13.18 + 5) % 12);
+    const ascIdx = Math.floor((sunIdx + (hour - 12) / 2 + (lng - 120) / 15 + 12) % 12);
 
-            // 4. 上升点计算 (恒星时 LST 修正)
-            const hour = time.getHours() + time.getMinutes() / 60;
-            const siderealTime = (100.46 + 0.985647 * d + lng + 15 * (hour - 8)) % 360;
-            const ascIdx = Math.floor((siderealTime + 90) % 360 / 30);
+    const userAstro = { sun: signs[sunIdx], moon: signs[moonIdx], asc: signs[ascIdx] };
+    localStorage.setItem('userAstro', JSON.stringify(userAstro));
 
-            // 5. 金星计算 (会合周期修正)
-            const venusL = (L + 1.60213 * d) % 360; // 模拟金星相对太阳的运行
-            const venusIdx = Math.floor((venusL < 0 ? venusL + 360 : venusL) / 30);
+    showResultDirectly(); // 调用显示逻辑
+}
 
-            // 显示数据
-            document.getElementById('resultArea').style.display = 'block';
-            document.getElementById('sun').innerText = signs[sunIdx] + "座";
-            document.getElementById('moon').innerText = signs[moonIdx] + "座";
-            document.getElementById('asc').innerText = signs[ascIdx] + "座";
-            document.getElementById('venus').innerText = signs[venusIdx] + "座";
+// 🚩 新增：核心跳转逻辑
+function showResultDirectly() {
+    const data = JSON.parse(localStorage.getItem('userAstro'));
+    
+    // 1. 隐藏输入表单
+    document.getElementById('inputCard').style.display = 'none';
+    
+    // 2. 填充并显示结果区域
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('sun').innerText = data.sun + "座";
+    document.getElementById('moon').innerText = data.moon + "座";
+    document.getElementById('asc').innerText = data.asc + "座";
+    document.getElementById('report').innerHTML = `✨ 欢迎回来。你的灵魂核心由<b>${data.sun}座</b>驱动，星路已为你铺就。`;
 
-            // 动态逻辑分析
-            document.getElementById('reportHeader').innerText = "⚖️ 元素平衡观测";
-            document.getElementById('reportContent').innerText = `基于 J2000 历元算法，你当前的太阳度数位于黄道第 ${Math.floor(L % 30)} 度。这表明你的核心能量处于 ${signs[sunIdx]}座的深处。上升点指向 ${signs[ascIdx]}座，这意味着你的人生剧本将以该星座的特质作为开场。`;
-        }
+    // 3. 显示三个导航按钮
+    document.getElementById('navGroup').style.display = 'grid';
+    
+    // 4. (可选) 增加一个“重置信息”的小按钮，方便用户想换个时间测
+    if (!document.getElementById('resetBtn')) {
+        const resetBtn = document.createElement('div');
+        resetBtn.id = 'resetBtn';
+        resetBtn.innerHTML = `<p style="text-align:center; font-size:12px; color:#555; cursor:pointer; margin-top:20px;" onclick="clearData()">重新输入出生信息</p>`;
+        document.querySelector('.container').appendChild(resetBtn);
+    }
+}
+
+// 🚩 新增：清除数据函数
+function clearData() {
+    localStorage.removeItem('userAstro');
+    location.reload(); // 刷新页面，表单就会回来了
+}
+
+function navigateTo(url) {
+    window.location.href = url;
+}
     </script>
 </body>
 </html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 年度推演 | ASTRO LAB</title>
+    <style>
+        :root {
+            --bg: #0c0d12;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #55efc4;
+            --accent-purple: #a29bfe;
+            --text-dim: #aaa;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: white;
+            font-family: -apple-system, system-ui, sans-serif;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 20px 0 50px 0;
+        }
+
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0 30px 0;
+        }
+
+        /* 核心基调卡片 */
+        .base-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quote-box {
+            border-left: 3px solid var(--accent-purple);
+            padding-left: 15px;
+            font-size: 15px;
+            color: #dfe6e9;
+            line-height: 1.8;
+        }
+
+        /* 重点月份网格：手机端 2x2 */
+        .month-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .month-item {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 15px;
+            border-bottom: 2px solid transparent;
+        }
+
+        /* 红黑榜颜色区分 */
+        .month-item.up { border-bottom-color: var(--accent-cyan); }
+        .month-item.down { border-bottom-color: #ff7675; }
+
+        .month-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .up .month-tag { background: rgba(85, 239, 196, 0.2); color: var(--accent-cyan); }
+        .down .month-tag { background: rgba(255, 118, 117, 0.2); color: #ff7675; }
+
+        .month-desc {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        /* 综合建议卡片 */
+        .advice-card {
+            background: rgba(162, 155, 254, 0.05);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(162, 155, 254, 0.1);
+        }
+
+        .advice-content {
+            font-size: 14px;
+            color: #bdc3c7;
+            line-height: 1.8;
+        }
+
+        .advice-content b { color: white; border-bottom: 1px solid var(--accent-cyan); }
+
+        /* 手机端点击反馈 */
+        .month-item:active { transform: scale(0.98); background: rgba(255,255,255,0.08); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回实验室</a>
+        <h1>2026 年度推演</h1>
+
+        <div class="base-card">
+            <div class="section-title">🌟 年度核心基调</div>
+            <div class="quote-box" id="yearlyTheme">
+                2026年是你的'权力重塑'之年。随着冥王星相位变动，你将从深度的内在积累转向显著的社会成就。
+            </div>
+        </div>
+
+        <div class="section-title">📅 重点月份红黑榜</div>
+        <div class="month-grid">
+            <div class="month-item up">
+                <span class="month-tag">3月 · 事业起航</span>
+                <div class="month-desc">新机会涌现，适合主动出击。</div>
+            </div>
+            <div class="month-item down">
+                <span class="month-tag">5月 · 水逆避坑</span>
+                <div class="month-desc">合同文书易出错，建议静观其变。</div>
+            </div>
+            <div class="month-item up">
+                <span class="month-tag">8月 · 情感高峰</span>
+                <div class="month-desc">金星入命，人际关系丝滑顺畅。</div>
+            </div>
+            <div class="month-item down">
+                <span class="month-tag">11月 · 精力预警</span>
+                <div class="month-desc">火星刑克，注意休息，防止内耗。</div>
+            </div>
+        </div>
+
+        <div class="advice-card">
+            <div class="section-title">🔮 维度综合建议</div>
+            <div class="advice-content" id="yearlyAdvice">
+                正在读取星盘数据...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const data = JSON.parse(localStorage.getItem('userAstro'));
+            if (!data) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 动态生成建议，解决文字拥挤
+            const adviceHTML = `
+                基于<b>太阳${data.sun}座</b>的主线，今年你会获得名誉提升；<br>
+                结合<b>上升${data.asc}座</b>，外部环境的变化超乎预期；<br>
+                <b>月亮${data.moon}座</b>提醒你：在追求成就的同时，务必留出独立思考的空间。
+            `;
+            document.getElementById('yearlyAdvice').innerHTML = adviceHTML;
+        };
+    </script>
+</body>
+</html>

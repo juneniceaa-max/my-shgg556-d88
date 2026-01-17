@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>全维命理矩阵 | ASTRO LAB</title>
+    <style>
+        :root {
+            --primary: #7d5fff;
+            --accent: #55efc4;
+            --bg: #0c0d12;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: white;
+            font-family: -apple-system, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 20px 0 40px 0;
+        }
+
+        .back-link {
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 26px;
+            text-align: center;
+            background: linear-gradient(135deg, #a29bfe, #55efc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0 30px 0;
+        }
+
+        /* 矩阵网格适配 iPhone 12 */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .matrix-item {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .item-label {
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .item-val {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        /* 综合解析区域优化 */
+        .synthesis-card {
+            background: var(--card-bg);
+            border-radius: 22px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .synthesis-title {
+            font-size: 16px;
+            color: #a29bfe;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+        }
+
+        #synthesisText {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #ddd;
+        }
+
+        /* 灵感指引的虚线框样式 */
+        .insight-box {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        .insight-title {
+            color: var(--accent);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* 抽牌区域 */
+        .tarot-area {
+            text-align: center;
+            padding: 20px;
+            background: rgba(125, 95, 255, 0.08);
+            border-radius: 24px;
+        }
+
+        #tarotEmoji { font-size: 40px; margin-bottom: 10px; display: block; }
+        #tarotName { font-size: 18px; font-weight: bold; color: #fff; display: block; margin-bottom: 15px; }
+
+        .draw-btn {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .draw-btn:active { transform: scale(0.95); }
+
+        .hint { font-size: 12px; color: #555; margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="back-link">← 返回实验室</a>
+        <h1>全维命理矩阵</h1>
+
+        <div class="matrix-grid">
+            <div class="matrix-item">
+                <span class="item-label">🧠 MBTI 映射</span>
+                <span class="item-val" id="mbti">---</span>
+            </div>
+            <div class="matrix-item">
+                <span class="item-label">🔯 紫微主星</span>
+                <span class="item-val" id="ziwei">---</span>
+            </div>
+            <div class="matrix-item">
+                <span class="item-label">🔢 九型人格</span>
+                <span class="item-val" id="enneagram">---</span>
+            </div>
+            <div class="matrix-item">
+                <span class="item-label">🃏 塔罗能量</span>
+                <span class="item-val" id="tarotNameDisplay">---</span>
+            </div>
+        </div>
+
+        <div class="synthesis-card">
+            <div class="synthesis-title">🌌 跨界综合解析</div>
+            <div id="synthesisText">正在同步宇宙数据...</div>
+        </div>
+
+        <div class="tarot-area">
+            <span id="tarotEmoji">✨</span>
+            <span id="tarotName">准备感应...</span>
+            <button class="draw-btn" onclick="drawTarot()">重新抽牌</button>
+            <div class="hint">点击抽取此时此刻的灵性能指引</div>
+        </div>
+    </div>
+
+    <script>
+        const insights = [
+            "当前的能量场显示，你需要平衡感性与理性的边界。",
+            "星象预示着一个隐藏的机遇正在你的直觉边缘浮现。",
+            "你内在的防御机制正在松动，这是接纳新能量的最好时机。",
+            "不必急于做出决定，此时此刻，静观其变是最好的策略。",
+            "某个过去被你忽略的信号，将在未来48小时内重新出现。",
+            "在复杂的局面中，保持‘利他’的心态会让你获得意外的保护。",
+            "你正在吸引与你能量频率相同的人，高质量的社交即将到来。",
+            "旧的循环即将结束，请做好清理，迎接全新的身份认同。"
+        ];
+
+        const cards = [
+            { e: "☀️", n: "太阳", d: "成功与清晰" },
+            { e: "🎡", n: "命运之轮", d: "重大的转折" },
+            { e: "🧘", n: "隐士", d: "内省的智慧" },
+            { e: "🌟", n: "星星", d: "希望与治愈" },
+            { e: "🎭", n: "魔术师", d: "创造与潜能" }
+        ];
+
+        function renderMatrix() {
+            const userAstro = JSON.parse(localStorage.getItem('userAstro'));
+            if (!userAstro) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // 性座性格映射逻辑
+            const mbtiMap = { "天蝎": "INTJ", "天秤": "ENFJ", "处女": "ISTJ", "狮子": "ENTP" };
+            const ziweiMap = { "天秤": "天同太阴", "天蝎": "廉贞七杀", "处女": "紫微天府" };
+            
+            const mbti = mbtiMap[userAstro.sun] || "INFJ";
+            const ziwei = ziweiMap[userAstro.asc] || "破军化禄";
+            
+            document.getElementById('mbti').innerText = mbti;
+            document.getElementById('ziwei').innerText = ziwei;
+            document.getElementById('enneagram').innerText = (mbti === "INTJ") ? "5w6 观察者" : "4w5 艺术型";
+
+            // 🚩 初始化加载：自动触发一次抽牌
+            drawTarot();
+        }
+
+        function drawTarot() {
+            const userAstro = JSON.parse(localStorage.getItem('userAstro'));
+            const mbti = document.getElementById('mbti').innerText;
+            const ziwei = document.getElementById('ziwei').innerText;
+
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            const randomInsight = insights[Math.floor(Math.random() * insights.length)];
+
+            // 更新界面
+            document.getElementById('tarotEmoji').innerText = randomCard.e;
+            document.getElementById('tarotName').innerText = randomCard.n;
+            document.getElementById('tarotNameDisplay').innerText = randomCard.n;
+
+            // 动态生成带样式的 HTML
+            document.getElementById('synthesisText').innerHTML = `
+                基于<b>${userAstro.sun}座</b>与<b>${mbti}</b>的交叉影响，你的性格底层逻辑非常稳固。
+                配合紫微命盘中的<b>${ziwei}</b>，你近期的能量流向正处于调整期。
+                <div class="insight-box">
+                    <span class="insight-title">🔮 此时此刻的灵感指引：</span>
+                    ${randomInsight}
+                </div>
+            `;
+        }
+
+        // 页面加载即运行
+        window.onload = renderMatrix;
+    </script>
+</body>
+</html>

@@ -5,63 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>占星运势助手</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
-        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; background: #f9f9f9; }
-        input, button { padding: 8px; margin: 5px 0; }
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; color: #333; }
+        .card { border: 1px solid #ddd; padding: 20px; border-radius: 12px; margin-top: 20px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #6200ee; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #3700b3; }
+        h1 { color: #6200ee; text-align: center; }
     </style>
 </head>
 <body>
     <h1>🌟 个人星盘推算</h1>
-    
-    <div>
-        <label>出生日期时间：</label><br>
-        <input type="datetime-local" id="birthTime" value="1995-01-01T12:00"><br>
-        <label>出生城市经度（如北京 116.4）：</label><br>
-        <input type="number" id="lng" value="116.4"><br>
+    <div class="card">
+        <label>出生日期时间：</label>
+        <input type="datetime-local" id="birthTime" value="1995-01-01T12:00">
+        <label>出生城市经度（北京116.4）：</label>
+        <input type="number" id="lng" value="116.4">
         <button onclick="calculateAstro()">立即推算运势</button>
     </div>
 
     <div id="result" class="card" style="display:none;">
         <h3>你的核心能量：</h3>
         <p id="sunSign"></p>
-        <p id="moonSign"></p>
         <p id="ascSign"></p>
         <hr>
         <h4>✨ 今日运势预测：</h4>
         <p id="dailyFortune"></p>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/astrology-js/dist/astrology.min.js"></script>
-<script>
-    function calculateAstro() {
-        const timeValue = document.getElementById('birthTime').value;
-        const lng = parseFloat(document.getElementById('lng').value);
-        const date = new Date(timeValue);
 
-        // 核心：调用真正的占星库计算（简化逻辑展示）
-        // 这里的逻辑会根据你输入的时间生成真实的行星经度
-        const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
-        
-        // 算法：太阳位置随日期变化，每约30天换一宫
-        const dayOfYear = (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24;
-        const sunPos = (dayOfYear + 284) % 365 / 365 * 360;
-        
-        // 算法：上升点随出生时间每2小时换一宫（受经度影响）
-        const hours = date.getHours() + date.getMinutes() / 60;
-        const ascPos = (sunPos + (hours - 12) * 15 + (lng - 120)) % 360;
+    <script src="https://cdn.jsdelivr.net/npm/astrology-js/dist/astrology.min.js"></script>
+    <script>
+        function calculateAstro() {
+            const timeValue = document.getElementById('birthTime').value;
+            const lng = parseFloat(document.getElementById('lng').value);
+            const date = new Date(timeValue);
+            const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+            
+            // 基础太阳星座计算
+            const dayOfYear = (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24;
+            const sunPos = (dayOfYear + 284) % 365 / 365 * 360;
+            
+            // 基础上升星座计算
+            const hours = date.getHours() + date.getMinutes() / 60;
+            const ascPos = (sunPos + (hours - 12) * 15 + (lng - 120)) % 360;
 
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('sunSign').innerHTML = `☀️ <b>太阳：</b> ${signs[Math.floor(sunPos / 30)]}座`;
-        document.getElementById('ascSign').innerHTML = `⬆️ <b>上升：</b> ${signs[Math.floor((ascPos + 360) % 360 / 30)]}座`;
-        
-        // 自动生成今日运势语
-        const fortunes = [
-            "今日星象大吉，适合开启新项目。",
-            "月亮能量较强，建议多关注内在情绪。",
-            "水星顺行，沟通与表达将非常顺畅。",
-            "土星位置提醒你：欲速则不达，稳扎稳打。"
-        ];
-        document.getElementById('dailyFortune').innerText = fortunes[date.getDay() % 4];
-    }
-</script>
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('sunSign').innerHTML = `☀️ <b>太阳：</b> ${signs[Math.floor(sunPos / 30)]}座`;
+            document.getElementById('ascSign').innerHTML = `⬆️ <b>上升：</b> ${signs[Math.floor((ascPos + 360) % 360 / 30)]}座`;
+            
+            const fortunes = ["宜写代码，诸事皆宜", "保持耐心，好运在后头", "灵感迸发，适合创作", "注意休息，补充能量"];
+            document.getElementById('dailyFortune').innerText = fortunes[date.getDay() % 4];
+        }
+    </script>
 </body>
 </html>

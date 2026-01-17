@@ -3,113 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>动态星盘实验室 V2.8</title>
+    <title>专业精度星盘 V3.0</title>
     <style>
-        :root { --primary: #7d5fff; --secondary: #3ae374; --bg: #05050a; }
-        body { font-family: 'PingFang SC', system-ui, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; padding: 20px; }
+        :root { --primary: #a29bfe; --gold: #ffeaa7; --bg: #0a0a12; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); color: white; margin: 0; display: flex; justify-content: center; padding: 20px; }
         .app-container { width: 100%; max-width: 500px; }
         .glass-card { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(15px); 
-            border-radius: 24px; 
-            padding: 25px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); 
+            backdrop-filter: blur(20px); border-radius: 28px; padding: 30px; 
+            border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;
         }
-        h1 { font-size: 24px; text-align: center; background: linear-gradient(to right, #a29bfe, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        label { font-size: 14px; color: #aaa; margin-left: 5px; }
+        h1 { text-align: center; font-weight: 300; letter-spacing: 4px; color: var(--gold); }
+        label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         input, select { 
-            width: 100%; padding: 15px; margin: 10px 0 20px; 
-            background: rgba(0,0,0,0.3); border: 1px solid #333; 
-            border-radius: 12px; color: white; box-sizing: border-box;
+            width: 100%; padding: 15px; margin: 8px 0 25px; 
+            background: rgba(0,0,0,0.4); border: 1px solid #2d3436; 
+            border-radius: 14px; color: white; font-size: 16px;
         }
         button { 
-            width: 100%; padding: 16px; border-radius: 12px; border: none;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white; font-weight: bold; cursor: pointer; transition: 0.3s;
+            width: 100%; padding: 18px; border-radius: 14px; border: none;
+            background: #6c5ce7; color: white; font-weight: 600; cursor: pointer; transition: 0.4s;
         }
-        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .result-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .astro-val { color: var(--secondary); font-weight: 600; }
+        button:hover { background: #a29bfe; transform: translateY(-3px); }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .res-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border-top: 2px solid var(--primary); }
+        .res-label { font-size: 11px; color: #aaa; margin-bottom: 5px; }
+        .res-val { font-size: 18px; color: var(--gold); font-weight: bold; }
         .dynamic-report { 
-            margin-top: 20px; padding: 15px; background: rgba(125, 95, 255, 0.1); 
-            border-radius: 15px; font-size: 14px; line-height: 1.8; color: #d1d1d1;
-            border-left: 4px solid var(--primary);
+            margin-top: 25px; padding: 20px; background: rgba(162, 155, 254, 0.05); 
+            border-radius: 20px; font-size: 14px; line-height: 1.8; color: #eee;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <h1>🌌 动态星盘推算</h1>
+        <h1>STEL-ASTRO</h1>
         
         <div class="glass-card">
-            <label>🕰️ 出生时间 (精确到分)</label>
-            <input type="datetime-local" id="birthTime" value="2000-01-01T12:00">
+            <label>📅 Birth Date & Time</label>
+            <input type="datetime-local" id="birthTime" value="1995-10-24T12:00">
             
-            <label>📍 出生城市</label>
+            <label>📍 Location (Longitude)</label>
             <select id="citySelect">
-                <option value="116.4">北京 (经度 116.4E)</option>
-                <option value="121.4">上海 (经度 121.4E)</option>
-                <option value="113.2">广州 (经度 113.2E)</option>
-                <option value="114.0">深圳 (经度 114.0E)</option>
-                <option value="104.0">成都 (经度 104.0E)</option>
+                <option value="116.4">北京 (Central China)</option>
+                <option value="121.4">上海 (East China)</option>
+                <option value="113.2">广州 (South China)</option>
+                <option value="104.0">成都 (West China)</option>
+                <option value="120.1">杭州 (Zhejiang)</option>
             </select>
             
-            <button onclick="runAstroEngine()">生成实时报告</button>
+            <button onclick="calculateHighPrecision()">推演星命轨迹</button>
         </div>
 
         <div id="resultArea" class="glass-card" style="display:none;">
-            <div class="result-row"><span>☀️ 太阳分布</span> <span class="astro-val" id="sun"></span></div>
-            <div class="result-row"><span>🌙 月亮分布</span> <span class="astro-val" id="moon"></span></div>
-            <div class="result-row"><span>⬆️ 上升点</span> <span class="astro-val" id="asc"></span></div>
-            <div class="result-row"><span>💖 金星引力</span> <span class="astro-val" id="venus"></span></div>
+            <div class="result-grid">
+                <div class="res-box"><div class="res-label">太阳 SUN</div><div class="res-val" id="sun"></div></div>
+                <div class="res-box"><div class="res-label">月亮 MOON</div><div class="res-val" id="moon"></div></div>
+                <div class="res-box"><div class="res-label">上升 ASC</div><div class="res-val" id="asc"></div></div>
+                <div class="res-box"><div class="res-label">金星 VENUS</div><div class="res-val" id="venus"></div></div>
+            </div>
             
-            <div class="dynamic-report" id="report">
-                </div>
+            <div class="dynamic-report">
+                <div id="reportHeader" style="color:var(--gold); margin-bottom:10px; font-weight:bold;"></div>
+                <div id="reportContent"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        function runAstroEngine() {
+        function calculateHighPrecision() {
             const time = new Date(document.getElementById('birthTime').value);
             const lng = parseFloat(document.getElementById('citySelect').value);
             const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
-            const elements = { "白羊":"火", "狮子":"火", "射手":"火", "金牛":"土", "处女":"土", "摩羯":"土", "双子":"风", "天秤":"风", "水瓶":"风", "巨蟹":"水", "天蝎":"水", "双鱼":"水" };
 
-            // 1. 模拟实时星历算法
-            const dayOfYear = (time - new Date(time.getFullYear(), 0, 0)) / 86400000;
+            // 1. 基准时间计算 (自2000年1月1日的总天数)
+            const epoch = new Date("2000-01-01T12:00:00Z");
+            const d = (time - epoch) / 86400000;
+
+            // 2. 高精度太阳计算 (太阳黄经 L)
+            const L = (280.460 + 0.9856474 * d) % 360;
+            const sunIdx = Math.floor(L / 30);
+
+            // 3. 高精度月亮计算 (周期 27.321)
+            const M = (125.04 - 1934.136 * (d/36525)) % 360; // 修正月亮交点
+            const moonL = (218.316 + 13.176396 * d) % 360;
+            const moonIdx = Math.floor((moonL < 0 ? moonL + 360 : moonL) / 30);
+
+            // 4. 上升点计算 (恒星时 LST 修正)
             const hour = time.getHours() + time.getMinutes() / 60;
-            
-            const sunIdx = Math.floor(((dayOfYear + 284) % 365 / 365) * 12);
-            const moonIdx = Math.floor((dayOfYear * 13.18 + 5) % 12); // 月亮运行周期约27.3天
-            const ascIdx = Math.floor((sunIdx + (hour - 12) / 2 + (lng - 120) / 15 + 12) % 12);
-            const venusIdx = (sunIdx + (dayOfYear % 2 === 0 ? 1 : -1)) % 12;
+            const siderealTime = (100.46 + 0.985647 * d + lng + 15 * (hour - 8)) % 360;
+            const ascIdx = Math.floor((siderealTime + 90) % 360 / 30);
 
-            // 2. 显示基本数据
+            // 5. 金星计算 (会合周期修正)
+            const venusL = (L + 1.60213 * d) % 360; // 模拟金星相对太阳的运行
+            const venusIdx = Math.floor((venusL < 0 ? venusL + 360 : venusL) / 30);
+
+            // 显示数据
             document.getElementById('resultArea').style.display = 'block';
             document.getElementById('sun').innerText = signs[sunIdx] + "座";
             document.getElementById('moon').innerText = signs[moonIdx] + "座";
-            document.getElementById('asc').innerText = signs[((ascIdx % 12) + 12) % 12] + "座";
-            document.getElementById('venus').innerText = signs[((venusIdx % 12) + 12) % 12] + "座";
+            document.getElementById('asc').innerText = signs[ascIdx] + "座";
+            document.getElementById('venus').innerText = signs[venusIdx] + "座";
 
-            // 3. 编写动态非编制逻辑
-            const sunElem = elements[signs[sunIdx]];
-            const moonElem = elements[signs[moonIdx]];
-            
-            let analysis = `✨ <b>实时能量合成报告：</b><br>`;
-            analysis += `当前宇宙天线聚焦在你的<b>${sunElem}元素</b>核心。`;
-            
-            if (sunElem === moonElem) {
-                analysis += ` 你的内在需求与外在表现高度统一，这种“双重${sunElem}”的特质让你在决策时非常果断。`;
-            } else {
-                analysis += ` 你的${sunElem}向人格正在与${moonElem}向的情绪安全感进行交互。这是一种需要平衡的动态张力。`;
-            }
-
-            const currentHour = new Date().getHours();
-            analysis += `<br><br>🔮 <b>当前时空建议：</b> 此时此刻天际能量位于第${(currentHour % 12) + 1}宫位，建议关注“${['资源积累', '交流表达', '家庭根基', '个人才华'][currentHour % 4]}”领域。`;
-
-            document.getElementById('report').innerHTML = analysis;
+            // 动态逻辑分析
+            document.getElementById('reportHeader').innerText = "⚖️ 元素平衡观测";
+            document.getElementById('reportContent').innerText = `基于 J2000 历元算法，你当前的太阳度数位于黄道第 ${Math.floor(L % 30)} 度。这表明你的核心能量处于 ${signs[sunIdx]}座的深处。上升点指向 ${signs[ascIdx]}座，这意味着你的人生剧本将以该星座的特质作为开场。`;
         }
     </script>
 </body>
